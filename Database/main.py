@@ -59,12 +59,18 @@ if dbconn:
     mycursor = dbconn.cursor()
     """mycursor.execute(
     SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{0}'.format(settings.TABLE_NAME))
-    print("table exists")
-    if mycursor.fetchone()[0] != 1:"""
-    mycursor.execute("CREATE TABLE {} ({})".format(settings.TABLE_NAME, settings.TABLE_ATTRIBUTES))
-    print("Table does not exist so it has been created")
-    dbconn.commit()
-    mycursor.close()
+    print("table exists")"""
+    mycursor.execute("select * from information_schema.tables where table_name=%s", ('nairobitweets',))
+    if bool(mycursor.rowcount) == False:
+    
+        mycursor.execute("CREATE TABLE {} ({})".format(settings.TABLE_NAME, settings.TABLE_ATTRIBUTES))
+        print("Table does not exist so it has been created")
+        dbconn.commit()
+        mycursor.close()
+    else:
+        print("Table already exists.")
+        dbconn.commit()
+        mycursor.close()
 else:
     print('Not connected')
 
@@ -152,7 +158,11 @@ while True:
         # However, this won't be reached as the stream listener won't stop automatically
         # Press STOP button to finish the process.
     except:
-        continue
+        dbconn = psycopg2.connect("host=ec2-52-207-25-133.compute-1.amazonaws.com dbname=d8e9au4m77k9b1 user=twvlbubsgabvpj password=53cf31e1928ac9f0ec3ec5554a92bfa96ddb693b7bb3b31df2bbf3784cc66f6a")
+        myStreamListener = MyStreamListener()
+        myStream = tweepy.Stream(auth = api.auth, listener = myStreamListener)
+        myStream.filter(languages=["en"], locations=GEOBOX_NAIROBI)
+        dbconn.commit()
     
 
 
@@ -171,7 +181,31 @@ while True:
 # In[ ]:
 
 
-#Will be adding the function
+
+
+
+# In[4]:
+
+
+import psycopg2 as pg
+import pandas.io.sql as psql
+import time
+import pandas as pd
+def getdata():
+    connection = pg.connect("host=ec2-52-207-25-133.compute-1.amazonaws.com dbname=d8e9au4m77k9b1 user=twvlbubsgabvpj password=53cf31e1928ac9f0ec3ec5554a92bfa96ddb693b7bb3b31df2bbf3784cc66f6a")
+    dataframe = psql.read_sql('SELECT * FROM nairobitweets', connection)
+    dataframe.count
+    print(dataframe)
+    time.sleep(60)
+
+while True:
+    getdata()
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
