@@ -117,24 +117,22 @@ class MyStreamListener(tweepy.StreamListener):
         
         # Store all data in MySQL
         if dbconn:
-            mycursor = dbconn.cursor()
+            dbcursor = dbconn.cursor()
             sql = "INSERT INTO {} (id_str,created_at,text,polarity,                subjectivity, user_created_at, user_location,                user_description, user_followers_count, longitude,                latitude, retweet_count, favorite_count) VALUES                 (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)".format(settings.TABLE_NAME)
             val = (id_str, created_at, text, polarity, subjectivity,                 user_created_at, user_location, user_description, user_followers_count, longitude, latitude, retweet_count, favorite_count)
-            mycursor.execute(sql, val)
+            dbcursor.execute(sql, val)
             dbconn.commit()
-            mycursor.close()
-    
     
     def on_error(self, status_code):
         '''
-        Since Twitter API has rate limits, stop srcraping data as it exceed to the thresold.
+        Since Twitter API has rate limits, stop scraping data as it exceed to the thresold.
         '''
         if status_code == 420:
             # return False to disconnect the stream
             return False
 
 
-# In[9]:
+# In[ ]:
 
 
 #This calls the class myStreamListener thereby witing into the database
@@ -143,14 +141,19 @@ place_id = places[0].id
 public_tweets = api.search(q="place:%s" %place_id)
 '''
 GEOBOX_WORLD = [-180,-90,180,90]
-GEOBOX_NAIROBI = [-1.3891756881977984,37.106463945682584,-1.1597918307560573,36.665974517587834]
-myStreamListener = MyStreamListener()
-myStream = tweepy.Stream(auth = api.auth, listener = myStreamListener)
-myStream.filter(languages=["en"], track = settings.TRACK_WORDS)
-# Close the postgres connection as it finished
-# However, this won't be reached as the stream listener won't stop automatically
-# Press STOP button to finish the process.
-mydb.close()
+GEOBOX_NAIROBI = [36.542329,-1.538666,37.186403,-1.052647]
+while True:
+    try:
+        myStreamListener = MyStreamListener()
+        myStream = tweepy.Stream(auth = api.auth, listener = myStreamListener)
+        myStream.filter(languages=["en"], locations=GEOBOX_NAIROBI)
+        dbconn.commit()
+        # Close the postgres connection as it finished
+        # However, this won't be reached as the stream listener won't stop automatically
+        # Press STOP button to finish the process.
+    except:
+        continue
+    
 
 
 # In[ ]:
@@ -168,41 +171,11 @@ mydb.close()
 # In[ ]:
 
 
-#This is used to read data from the database
-import psycopg2
-try:
-    connection = psycopg2.connect(user="twvlbubsgabvpj",
-                                  password="53cf31e1928ac9f0ec3ec5554a92bfa96ddb693b7bb3b31df2bbf3784cc66f6a",
-                                  host="ec2-52-207-25-133.compute-1.amazonaws.com",
-                                  database="d8e9au4m77k9b1")
-    cursor = connection.cursor()
-    postgreSQL_select_Query = "select * from nairobitweets"
-
-    cursor.execute(postgreSQL_select_Query)
-    print("Selecting rows from tweets table using cursor.fetchall")
-    tweet_records = cursor.fetchall() 
-   
-    print("Print each row and it's columns values")
-    for row in tweet_records:
-        print("Id = ", row[0], )
-        print("created_at = ", row[1], )
-        print("text  = ", row[2], )
-        print("polarity = ", row[3], )
-        print("subjectivity = ", row[4], "\n")
-
-except (Exception, psycopg2.Error) as error :
-    print ("Error while fetching data from PostgreSQL", error)
-
-finally:
-    #closing database connection.
-    if connection:
-        cursor.close()
-        connection.close()
-        print("PostgreSQL connection is closed").close()
+#Will be adding the function
 
 
 # In[ ]:
 
 
-\copy (SELECT * FROM tweets) to 'C:\tmp\persons_client.csv' with csv
+
 
