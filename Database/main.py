@@ -50,7 +50,7 @@ def deEmojify(text):
 import os
 import psycopg2
 
-dbconn = psycopg2.connect("host=ec2-54-81-37-115.compute-1.amazonaws.com dbname=d58g5m66umb113 user=eigxqdhsrlaffv password=b1495696080d3ad38656b3e2973e25cd8890a1570a7639abdf756cbbd793c8f1")
+dbconn = psycopg2.connect("host=ec2-52-207-25-133.compute-1.amazonaws.com dbname=d8e9au4m77k9b1 user=twvlbubsgabvpj password=53cf31e1928ac9f0ec3ec5554a92bfa96ddb693b7bb3b31df2bbf3784cc66f6a")
 if dbconn:
     print("Connected")
     '''
@@ -69,7 +69,7 @@ else:
     print('Not connected')
 
 
-# In[6]:
+# In[5]:
 
 
 #creating a listener to watch for our data
@@ -134,7 +134,7 @@ class MyStreamListener(tweepy.StreamListener):
             return False
 
 
-# In[ ]:
+# In[9]:
 
 
 #This calls the class myStreamListener thereby witing into the database
@@ -143,15 +143,14 @@ place_id = places[0].id
 public_tweets = api.search(q="place:%s" %place_id)
 '''
 GEOBOX_WORLD = [-180,-90,180,90]
-GEOBOX_NAIROBI = [-1.1597918307560573,36.665974517587834,-1.3891756881977984,37.106463945682584]
+GEOBOX_NAIROBI = [-1.3891756881977984,37.106463945682584,-1.1597918307560573,36.665974517587834]
 myStreamListener = MyStreamListener()
 myStream = tweepy.Stream(auth = api.auth, listener = myStreamListener)
-myStream.filter(locations=GEOBOX_NAIROBI)
-                            
+myStream.filter(languages=["en"], track = settings.TRACK_WORDS)
 # Close the postgres connection as it finished
 # However, this won't be reached as the stream listener won't stop automatically
 # Press STOP button to finish the process.
-dbconn.close()
+mydb.close()
 
 
 # In[ ]:
@@ -172,10 +171,10 @@ dbconn.close()
 #This is used to read data from the database
 import psycopg2
 try:
-    connection = psycopg2.connect(user="eigxqdhsrlaffv",
-                                  password="b1495696080d3ad38656b3e2973e25cd8890a1570a7639abdf756cbbd793c8f1",
-                                  host="ec2-54-81-37-115.compute-1.amazonaws.com",
-                                  database="d58g5m66umb113")
+    connection = psycopg2.connect(user="twvlbubsgabvpj",
+                                  password="53cf31e1928ac9f0ec3ec5554a92bfa96ddb693b7bb3b31df2bbf3784cc66f6a",
+                                  host="ec2-52-207-25-133.compute-1.amazonaws.com",
+                                  database="d8e9au4m77k9b1")
     cursor = connection.cursor()
     postgreSQL_select_Query = "select * from nairobitweets"
 
@@ -205,5 +204,5 @@ finally:
 # In[ ]:
 
 
-#\copy (SELECT * FROM tweets) to 'C:\tmp\persons_client.csv' with csv
+\copy (SELECT * FROM tweets) to 'C:\tmp\persons_client.csv' with csv
 
