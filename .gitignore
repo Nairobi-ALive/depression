@@ -1,0 +1,2 @@
+#ignore bin file that contains the word vectors
+*.bin
