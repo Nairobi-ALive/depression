@@ -1,10 +1,10 @@
 ### Depression Analysis For Tweets ####
 
 #### Setting up for the project ###
-clone the project 
-create an enviroment either using conda or virtualenv
-switch into your enviroment
-install the requirements.txt file by using pip
+#clone the project 
+#create an enviroment either using conda or virtualenv
+#switch into your enviroment
+#install the requirements.txt file by using pip
 
 #### RUNNING THE PROGRAM #####
 To  run this you run two files,run the < main_program.py >
